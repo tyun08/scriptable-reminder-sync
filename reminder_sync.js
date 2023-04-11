@@ -5,7 +5,7 @@
 // Global binary variable to control if the script should modify data or just log changes
 const MODIFY_DATA = true;
 
-const SCHEDULED_ICON = "📅";
+const SCHEDULED_ICON = "";
 const CHECKMARK_ICON = "✅";
 
 let i = 0;
@@ -152,7 +152,11 @@ async function findOrCreateToDoListCalendar() {
 }
 
 const match_target_event = (reminder, events) => {
-  const targetEvent = events.find((e) => e.title === reminder.title);
+  //find when the e.title start with the reminder title
+  //because calendar title will carry over the reminder title
+  const targetEvent = events.find((e) => e.title.startsWith(reminder.title));
+
+  // const targetEvent = events.find((e) => e.title === reminder.title);
   if (!targetEvent) {
     // console.log(`找不到相同標題的Calendar Events: ${reminder.title}`);
     return null;
