@@ -8,6 +8,8 @@ const MODIFY_DATA = true;
 const SCHEDULED_ICON = "";
 const CHECKMARK_ICON = "✅";
 
+const TO_DO_LIST = "# To Do List";
+
 let i = 0;
 
 const get_recent_events = async () => {
@@ -68,8 +70,8 @@ function processIncompleteReminders(reminders, events) {
       continue;
     }
 
-    if (reminder.calendar.title !== "# To Do List") {
-      reminder.calendar = reminder_calendars["# To Do List"];
+    if (reminder.calendar.title !== TO_DO_LIST) {
+      reminder.calendar = reminder_calendars[TO_DO_LIST];
       i += 1;
       console.log(
         `Change Log ${i}: Moving reminder "${reminder.title}" to # To Do List calendar`
@@ -84,23 +86,23 @@ function processIncompleteReminders(reminders, events) {
       `Change Log ${i}: Updating reminder "${reminder.title}" due date to ${newDueDate}`
     );
 
-    if (!reminder.title.startsWith(SCHEDULED_ICON)) {
-      reminder.title = `${SCHEDULED_ICON}${reminder.title}`;
+    // if (!reminder.title.startsWith(SCHEDULED_ICON)) {
+    //   reminder.title = `${SCHEDULED_ICON}${reminder.title}`;
 
-      i += 1;
-      console.log(
-        `Change Log ${i}: Adding scheduled icon to reminder "${reminder.title}"`
-      );
-    }
+    //   i += 1;
+    //   console.log(
+    //     `Change Log ${i}: Adding scheduled icon to reminder "${reminder.title}"`
+    //   );
+    // }
 
-    if (!targetEvent.title.startsWith(SCHEDULED_ICON)) {
-      targetEvent.title = `${SCHEDULED_ICON}${targetEvent.title}`;
+    // if (!targetEvent.title.startsWith(SCHEDULED_ICON)) {
+    //   targetEvent.title = `${SCHEDULED_ICON}${targetEvent.title}`;
 
-      i += 1;
-      console.log(
-        `Change Log ${i}: Adding scheduled icon to event "${targetEvent.title}"`
-      );
-    }
+    //   i += 1;
+    //   console.log(
+    //     `Change Log ${i}: Adding scheduled icon to event "${targetEvent.title}"`
+    //   );
+    // }
     if (MODIFY_DATA) {
       reminder.save();
       targetEvent.save();
@@ -115,7 +117,7 @@ function processCompletedReminders(reminders, events) {
   }
 
   for (const reminder of reminders) {
-    if (!reminder.calendar.title === "# To Do List") {
+    if (!reminder.calendar.title === TO_DO_LIST) {
       continue;
     }
 
@@ -127,7 +129,8 @@ function processCompletedReminders(reminders, events) {
 
     if (!targetEvent.title.startsWith(CHECKMARK_ICON)) {
       //remove scheduled icon from event title
-      targetEvent.title = targetEvent.title.replace(SCHEDULED_ICON, "");
+
+      // targetEvent.title = targetEvent.title.replace(SCHEDULED_ICON, "");
 
       targetEvent.title = `${CHECKMARK_ICON}${targetEvent.title}`;
       i += 1;
@@ -139,16 +142,6 @@ function processCompletedReminders(reminders, events) {
       }
     }
   }
-}
-
-async function findOrCreateToDoListCalendar() {
-  let toDoListCalendar = Calendar.find("# To Do List");
-  if (!toDoListCalendar) {
-    toDoListCalendar = new Calendar();
-    toDoListCalendar.title = "# To Do List";
-    toDoListCalendar.save();
-  }
-  return toDoListCalendar;
 }
 
 const match_target_event = (reminder, events) => {
