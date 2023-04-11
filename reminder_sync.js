@@ -12,9 +12,9 @@ const TO_DO_LIST = "# To Do List";
 
 let i = 0;
 
-const get_recent_events = async () => {
-  const dur_month = 1;
+//function to get a startDate and endDate that is dur_month months before and after today
 
+const get_start_end_date = (dur_month) => {
   const startDate = new Date();
   startDate.setMonth(startDate.getMonth() - dur_month);
   console.log(`日曆的開始時間 ${startDate.toLocaleDateString()}`);
@@ -23,8 +23,7 @@ const get_recent_events = async () => {
   endDate.setMonth(endDate.getMonth() + dur_month);
   console.log(`日曆的結束時間 ${endDate.toLocaleDateString()}`);
 
-  const events = await CalendarEvent.between(startDate, endDate);
-  return events;
+  return [startDate, endDate];
 };
 
 const get_calendar_types = (calendars) => {
@@ -46,8 +45,10 @@ const event_calendars = get_calendar_types(await Calendar.forEvents());
 const reminder_calendars = get_calendar_types(await Calendar.forReminders());
 
 const reminders = await Reminder.allIncomplete();
-const events = await get_recent_events();
-const completedReminders = await Reminder.allCompleted();
+const events = await CalendarEvent.between(...get_start_end_date(1));
+const completedReminders = await Reminder.completedBetween(
+  ...get_start_end_date(1)
+);
 
 console.log(`獲取 ${reminders.length} 條提醒事項`);
 console.log(`獲取 ${events.length} 條日曆`);
