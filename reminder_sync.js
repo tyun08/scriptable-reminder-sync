@@ -9,6 +9,7 @@ const SCHEDULED_ICON = "";
 const CHECKMARK_ICON = "✅";
 
 const TO_DO_LIST = "# To Do List";
+const WATCH_LIST = "# Watch List";
 
 let i = 0;
 
@@ -71,13 +72,18 @@ function processIncompleteReminders(reminders, events) {
       continue;
     }
 
-    if (reminder.calendar.title !== TO_DO_LIST) {
-      reminder.calendar = reminder_calendars[TO_DO_LIST];
-      i += 1;
-      console.log(
-        `Change Log ${i}: Moving reminder "${reminder.title}" to # To Do List calendar`
-      );
+    if (
+      reminder.calendar.title !== WATCH_LIST &&
+      reminder.calendar.title !== TO_DO_LIST
+    ) {
+      continue;
     }
+
+    reminder.calendar = reminder_calendars[TO_DO_LIST];
+    i += 1;
+    console.log(
+      `Change Log ${i}: Moving reminder "${reminder.title}" to # To Do List calendar`
+    );
 
     const newDueDate = targetEvent.startDate;
     reminder.dueDate = newDueDate;
@@ -104,6 +110,15 @@ function processIncompleteReminders(reminders, events) {
     //     `Change Log ${i}: Adding scheduled icon to event "${targetEvent.title}"`
     //   );
     // }
+
+    if (targetEvent.calendar.title !== TO_DO_LIST) {
+      targetEvent.calendar = event_calendars[TO_DO_LIST];
+      i += 1;
+      console.log(
+        `Change Log ${i}: Change Calendar type to "${targetEvent.calendar.title}"`
+      );
+    }
+
     if (MODIFY_DATA) {
       reminder.save();
       targetEvent.save();
