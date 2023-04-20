@@ -21,7 +21,7 @@ const get_start_end_date = (dur_month) => {
   console.log(`日曆的開始時間 ${startDate.toLocaleDateString()}`);
 
   const endDate = new Date();
-  endDate.setMonth(endDate.getMonth() + dur_month);
+  endDate.setMonth(endDate.getMonth() + dur_month*6);
   console.log(`日曆的結束時間 ${endDate.toLocaleDateString()}`);
 
   return [startDate, endDate];
