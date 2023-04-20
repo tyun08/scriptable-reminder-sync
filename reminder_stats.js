@@ -120,11 +120,17 @@ async function get_days_ago_from_now_from_oldest_reminder_in_watchlist() {
 }
 
 async function randomAPI() {
-  let days_ago_from_now_from_oldest_reminder_in_watchlist = await get_days_ago_from_now_from_oldest_reminder_in_watchlist()
+
+  let reminders = await get_reminders_in_watchlist()
+  let oldest_reminder = get_oldest_reminder(reminders)
+  let age = get_reminder_age(oldest_reminder)
+
+
+  // let days_ago_from_now_from_oldest_reminder_in_watchlist = await get_days_ago_from_now_from_oldest_reminder_in_watchlist()
 
   return {
     name: '未完成的提醒',
-    description: days_ago_from_now_from_oldest_reminder_in_watchlist
+    description: age
   }
 }
 
@@ -140,4 +146,25 @@ async function loadAppIcon() {
   let url = "https://is5-ssl.mzstatic.com/image/thumb/Purple124/v4/21/1e/13/211e13de-2e74-4221-f7db-d6d2c53b4323/AppIcon-1x_U007emarketing-0-7-0-85-220.png/540x540sr.jpg"
   let req = new Request(url)
   return req.loadImage()
+}
+
+
+function get_oldest_reminder(reminders_in_watchlist) {
+  // let oldest_reminder_in_watchlist = reminders_in_watchlist.reduce((oldest_reminder, reminder) => {
+  //   if (reminder.creationDate < oldest_reminder.creationDate) {
+  //     return reminder
+  //   } else {
+  //     return oldest_reminder
+  //   }
+  // })
+  // return oldest_reminder_in_watchlist
+
+  return reminders_in_watchlist[0]
+}
+
+
+function get_reminder_age(reminder) {
+  let days_ago_from_now = get_days_ago_from_now(reminder.creationDate)
+  console.log(`reminder ${reminder}, age: ${days_ago_from_now}`);
+  return days_ago_from_now
 }
