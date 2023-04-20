@@ -43,12 +43,20 @@ async function createWidget(api) {
   titleElement.font = Font.mediumSystemFont(13)
   widget.addSpacer(12)
   // Show API
-  let nameElement = widget.addText(api.name)
+  let nameElement = widget.addText('最老事项')
   nameElement.textColor = Color.white()
   nameElement.font = Font.boldSystemFont(18)
   widget.addSpacer(2)
 
-  let descriptionElement2 = widget.addText(`Aged: ${api.description}天`)
+  let descriptionElement = widget.addText(`${api.title}`)
+  //if more than X days, alert/notification to remind to clean wait list.
+
+  descriptionElement.minimumScaleFactor = 0.5
+  descriptionElement.textColor = Color.white()
+  descriptionElement.font = Font.systemFont(18)
+  widget.addSpacer(2)
+
+  let descriptionElement2 = widget.addText(`Aged: ${api.age}天`)
   //if more than X days, alert/notification to remind to clean wait list.
 
   descriptionElement2.minimumScaleFactor = 0.5
@@ -91,31 +99,9 @@ async function get_reminders_in_watchlist() {
 }
 
 
-// function to get the oldest reminder in watch list, which is the earliest created reminder
-async function get_oldest_reminder_in_watchlist() {
-  let reminders_in_watchlist = await get_reminders_in_watchlist()
-  // let oldest_reminder_in_watchlist = reminders_in_watchlist.reduce((oldest_reminder, reminder) => {
-  //   if (reminder.creationDate < oldest_reminder.creationDate) {
-  //     return reminder
-  //   } else {
-  //     return oldest_reminder
-  //   }
-  // })
-  // return oldest_reminder_in_watchlist
-
-  return reminders_in_watchlist[0]
-}
-
 function get_days_ago_from_now(date) {
   let today = new Date()
   let days_ago_from_now = Math.ceil((today.getTime() - date.getTime()) / (1000 * 3600 * 24))
-  return days_ago_from_now
-}
-
-async function get_days_ago_from_now_from_oldest_reminder_in_watchlist() {
-  let oldest_reminder_in_watchlist = await get_oldest_reminder_in_watchlist()
-  console.log(`oldest_reminder_in_watchlist: ${oldest_reminder_in_watchlist}`);
-  let days_ago_from_now = get_days_ago_from_now(oldest_reminder_in_watchlist.creationDate)
   return days_ago_from_now
 }
 
@@ -125,16 +111,11 @@ async function randomAPI() {
   let oldest_reminder = get_oldest_reminder(reminders)
   let age = get_reminder_age(oldest_reminder)
 
-
-  // let days_ago_from_now_from_oldest_reminder_in_watchlist = await get_days_ago_from_now_from_oldest_reminder_in_watchlist()
-
   return {
-    name: '未完成的提醒',
-    description: age
+    'title': oldest_reminder.title,
+    'age': age
   }
 }
-
-
 
 async function loadDocs() {
   let url = "https://docs.scriptable.app/scriptable.json"
