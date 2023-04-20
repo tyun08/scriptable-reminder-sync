@@ -21,7 +21,7 @@ Script.complete()
 
 async function createWidget(api) {
   let appIcon = await loadAppIcon()
-  let title = "Random Scriptable API"
+  let title = "Reminder Stats"
   let widget = new ListWidget()
   // Add background gradient
   let gradient = new LinearGradient()
@@ -47,50 +47,88 @@ async function createWidget(api) {
   nameElement.textColor = Color.white()
   nameElement.font = Font.boldSystemFont(18)
   widget.addSpacer(2)
-  let descriptionElement = widget.addText(api.description)
-  descriptionElement.minimumScaleFactor = 0.5
-  descriptionElement.textColor = Color.white()
-  descriptionElement.font = Font.systemFont(18)
+
+  let descriptionElement2 = widget.addText(`Aged: ${api.description}天`)
+  //if more than X days, alert/notification to remind to clean wait list.
+
+  descriptionElement2.minimumScaleFactor = 0.5
+  descriptionElement2.textColor = Color.white()
+  descriptionElement2.font = Font.systemFont(18)
+  widget.addSpacer(2)
+
   // UI presented in Siri ans Shortcuta is non-interactive, so we only show the footer when not running the script from Siri.
-  if (!config.runsWithSiri) {
-    widget.addSpacer(8)
-    // Add button to open documentation
-    let linkSymbol = SFSymbol.named("arrow.up.forward")
-    let footerStack = widget.addStack()
-    let linkStack = footerStack.addStack()
-    linkStack.centerAlignContent()
-    linkStack.url = api.url
-    let linkElement = linkStack.addText("Read more")
-    linkElement.font = Font.mediumSystemFont(13)
-    linkElement.textColor = Color.blue()
-    linkStack.addSpacer(3)
-    let linkSymbolElement = linkStack.addImage(linkSymbol.image)
-    linkSymbolElement.imageSize = new Size(11, 11)
-    linkSymbolElement.tintColor = Color.blue()
-    footerStack.addSpacer()
-    // Add link to documentation
-    let docsSymbol = SFSymbol.named("book")
-    let docsElement = footerStack.addImage(docsSymbol.image)
-    docsElement.imageSize = new Size(20, 20)
-    docsElement.tintColor = Color.white()
-    docsElement.imageOpacity = 0.5
-    docsElement.url = "https://docs.scriptable.app"
-  }
+  // if (!config.runsWithSiri) {
+  //   widget.addSpacer(8)
+  //   // Add button to open documentation
+  //   let linkSymbol = SFSymbol.named("arrow.up.forward")
+  //   let footerStack = widget.addStack()
+  //   let linkStack = footerStack.addStack()
+  //   linkStack.centerAlignContent()
+  //   linkStack.url = api.url
+  //   let linkElement = linkStack.addText("Read more")
+  //   linkElement.font = Font.mediumSystemFont(13)
+  //   linkElement.textColor = Color.blue()
+  //   linkStack.addSpacer(3)
+  //   let linkSymbolElement = linkStack.addImage(linkSymbol.image)
+  //   linkSymbolElement.imageSize = new Size(11, 11)
+  //   linkSymbolElement.tintColor = Color.blue()
+  //   footerStack.addSpacer()
+  //   // Add link to documentation
+  //   let docsSymbol = SFSymbol.named("book")
+  //   let docsElement = footerStack.addImage(docsSymbol.image)
+  //   docsElement.imageSize = new Size(20, 20)
+  //   docsElement.tintColor = Color.white()
+  //   docsElement.imageOpacity = 0.5
+  //   docsElement.url = "https://docs.scriptable.app"
+  // }
   return widget
 }
 
+async function get_reminders_in_watchlist() {
+  const WATCH_LIST = "# Watch List";
+  let reminders = await Reminder.allIncomplete()
+  return reminders.filter(reminder => reminder.calendar.title === WATCH_LIST)
+}
+
+
+// function to get the oldest reminder in watch list, which is the earliest created reminder
+async function get_oldest_reminder_in_watchlist() {
+  let reminders_in_watchlist = await get_reminders_in_watchlist()
+  // let oldest_reminder_in_watchlist = reminders_in_watchlist.reduce((oldest_reminder, reminder) => {
+  //   if (reminder.creationDate < oldest_reminder.creationDate) {
+  //     return reminder
+  //   } else {
+  //     return oldest_reminder
+  //   }
+  // })
+  // return oldest_reminder_in_watchlist
+
+  return reminders_in_watchlist[0]
+}
+
+function get_days_ago_from_now(date) {
+  let today = new Date()
+  let days_ago_from_now = Math.ceil((today.getTime() - date.getTime()) / (1000 * 3600 * 24))
+  return days_ago_from_now
+}
+
+async function get_days_ago_from_now_from_oldest_reminder_in_watchlist() {
+  let oldest_reminder_in_watchlist = await get_oldest_reminder_in_watchlist()
+  console.log(`oldest_reminder_in_watchlist: ${oldest_reminder_in_watchlist}`);
+  let days_ago_from_now = get_days_ago_from_now(oldest_reminder_in_watchlist.creationDate)
+  return days_ago_from_now
+}
+
 async function randomAPI() {
-  let docs = await loadDocs()
-  let apiNames = Object.keys(docs)
-  let num = Math.round(Math.random() * apiNames.length)
-  let apiName = apiNames[num]
-  let api = docs[apiName]
+  let days_ago_from_now_from_oldest_reminder_in_watchlist = await get_days_ago_from_now_from_oldest_reminder_in_watchlist()
+
   return {
-    name: apiName,
-    description: api["!doc"],
-    url: api["!url"]
+    name: '未完成的提醒',
+    description: days_ago_from_now_from_oldest_reminder_in_watchlist
   }
 }
+
+
 
 async function loadDocs() {
   let url = "https://docs.scriptable.app/scriptable.json"
